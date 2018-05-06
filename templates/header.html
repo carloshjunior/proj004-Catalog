@@ -1,0 +1,36 @@
+<header>
+  <div class="collapse bg-dark" id="navbarHeader">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-8 col-md-7 py-4">
+          <h4 class="text-white">About</h4>
+          <p class="text-muted">Project 'Catalog APP' develop by Carlos H Junior
+          for Udacity course Nanodegree Web Developer Full Stack module 03.</p>
+        </div>
+        <div class="col-sm-4 offset-md-1 py-4">
+          <h4 class="text-white">Tecnologies</h4>
+          <ul class="text-muted">
+            <li>Python</li>
+            <li>HTML & CSS</li>
+            <li>JavaScript</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="navbar navbar-dark bg-dark box-shadow">
+    <div class="container d-flex">
+      <a href="#" class="navbar-brand d-flex align-items-center">
+        <h1>Catalog APP</h1>
+      </a>
+      <div>
+      <a href="{{ url_for('showLogin') }}" class="navbar-brand">Login</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse"
+        data-target="#navbarHeader" aria-controls="navbarHeader"
+        aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+    </div>
+    </div>
+  </div>
+</header>

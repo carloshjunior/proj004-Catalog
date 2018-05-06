@@ -1,0 +1,38 @@
+body{
+    font-family: Exo, sans-serif;
+    font-size: 1em;
+}
+
+header, nav, footer, section, article, div {
+    box-sizing: border-box;
+}
+
+main{
+  margin-top: 15px;
+}
+
+aside{
+  float: left;
+  width: 20%;
+}
+
+aside ul{
+  margin: 0;
+  padding: 0;
+}
+
+aside li{
+    list-style-type: none;
+}
+
+section{
+  float: right;
+  width: 80%;
+}
+section ul{
+  margin: 0;
+  padding: 0;
+}
+section li{
+    list-style-type: none;
+}

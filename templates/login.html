@@ -1,0 +1,32 @@
+{% extends "main.html" %}
+{% block content %}
+<!-- {% include "header.html" %} -->
+<main>
+  <h2>Login</h2>
+  <form action="" method = "post">
+    <div class="form-group">
+    <label for="name">Username or Email:</label>
+    <input type ="text" class="form-control" maxlength="100" name="name"></br>
+    <label for="name">Password:</label>
+    <input type ="password" class="form-control" maxlength="10" name="password"></br>
+    <button type="submit" class="btn btn-default" id="submit" type="submit">
+    <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Login</button>
+    </div>
+  </form>
+  <h2>Create new User</h2>
+  <form action="{{url_for('createUser')}}" method = "post">
+    <div class="form-group">
+    <label for="name">Username:</label>
+    <input type ="text" class="form-control" maxlength="100" name="name"></br>
+    <label for="name">Email:</label>
+    <input type ="text" class="form-control" maxlength="100" name="email"></br>
+    <label for="name">Password:</label>
+    <input type ="password" class="form-control" maxlength="10" name="password"></br>
+    <label for="name">Repeat Password:</label>
+    <input type ="password" class="form-control" maxlength="10" name="confirm_password"></br>
+    <button type="submit" class="btn btn-default" id="submit" type="submit">
+    <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Create</button>
+    </div>
+  </form>
+</main>
+{% endblock %}

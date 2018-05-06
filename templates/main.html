@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+		<link href="https://fonts.googleapis.com/css?family=Exo" rel="stylesheet">
+		<!--<link rel="stylesheet"
+      href="https://getbootstrap.com/docs/4.0/dist/css/bootstrap.min.css">
+		<link rel=stylesheet type=text/css
+      href="{{ url_for('static', filename='styles.css') }}">-->
+	</head>
+	<body>
+		<div class="container">
+			<div class = 'flash'>
+			{% with messages = get_flashed_messages() %}
+				{% if messages %}
+				<ul>
+					{% for message in messages %}
+						<li> <strong> {{ message }} </strong> </li>
+					{% endfor %}
+				</ul>
+				{% endif %}
+			{% endwith %}
+			</div>
+
+			{% block content %}
+			{% endblock %}
+		</div>
+		<!-- Bootstrap core JavaScript ======================================== -->
+    <!-- Placed at the end of the document so the pages load faster
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.0/assets/js/vendor/popper.min.js"></script>
+    <script src="https://getbootstrap.com/docs/4.0/dist/js/bootstrap.min.js"></script>-->
+	</body>
+</html>

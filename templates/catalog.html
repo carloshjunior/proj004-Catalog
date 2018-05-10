@@ -1,0 +1,33 @@
+{% extends "main.html" %}
+{% block content %}
+<!-- {% include "header.html" %} -->
+<main>
+  <aside>
+    <h2>Categories</h2>
+    {% if 'id' in login_session %}
+      <a href="{{ url_for('createCategory') }}">Add new Category</a>
+    {% endif %}
+    <ul>
+    {% for category in categories %}
+      <li><a href="{{ url_for('showCatalogItems',
+                              category_name=category.name) }}">
+        {{ category.name }}</a></li>
+    {% endfor %}
+    </ul>
+  </aside>
+  <section>
+    <h2>Lastest Items</h2>
+    {% if 'id' in login_session %}
+      <a href="{{ url_for('createCatalogItem') }}">Add new Item</a>
+    {% endif %}
+    <ul>
+    {% for item in items %}
+      <li><a href="{{ url_for('showCatalogItemDetail',
+                              category_name=item.category.name,
+                              catalog_item=item.title) }}">
+        {{ item.title }}</a> ({{ item.category.name }})</li>
+    {% endfor %}
+    </ul>
+  </section>
+</main>
+{% endblock %}

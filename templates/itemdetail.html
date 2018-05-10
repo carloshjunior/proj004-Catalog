@@ -1,0 +1,16 @@
+{% extends "main.html" %}
+{% block content %}
+<!-- {% include "header.html" %} -->
+<main>
+  <h2>{{ item.title }}</h2>
+  <p>Description: {{ item.description }}</p>
+  {% if 'id' in login_session  %}
+    <a href="{{ url_for('editCatalogItem',
+                        catalog_item=item.title) }}">Edit</a> |
+    <a href="{{ url_for('deleteCatalogItem',
+                        catalog_item=item.title) }}">Delete</a>
+  {% endif %}
+  </br></br>
+  <a href="{{ url_for('showCategories') }}">back to Catalog</a>
+</main>
+{% endblock %}

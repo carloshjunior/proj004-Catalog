@@ -1,0 +1,18 @@
+{% extends "main.html" %}
+{% block content %}
+<!-- {% include "header.html" %} -->
+<main>
+  <h2>Delete Item</h2>
+  <p>Are you sure you want to delete '{{ item.title }}'?</p>
+  {% if 'id' in login_session  %}
+  <form action="" method = "post">
+    <button type="submit" class="btn btn-default" id="submit" type="submit">
+    <span class="glyphicon glyphicon-cutlery" aria-hidden="true">
+    </span>Delete</button>
+    <a href="{{ url_for('showCatalogItemDetail',
+                        category_name=item.category.name,
+                        catalog_item=item.title) }}">Cancel</a>
+  </form>
+  {% endif %}
+</main>
+{% endblock %}

@@ -11,6 +11,7 @@
                         catalog_item=item.title) }}">Delete</a>
   {% endif %}
   </br></br>
-  <a href="{{ url_for('showCategories') }}">back to Catalog</a>
+  <a href="{{ url_for('showCatalogItems',
+                      category_name=item.category.name) }}">back to Catalog</a>
 </main>
 {% endblock %}

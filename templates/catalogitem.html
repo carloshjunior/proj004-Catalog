@@ -17,7 +17,7 @@
     </ul>
   </aside>
   <section>
-    <h2>Lastest Items</h2>
+    <h2>{{ actualcategory.name }}</h2>
     {% if 'id' in login_session %}
       <a href="{{ url_for('createCatalogItem') }}">Add new Item</a>
     {% endif %}
@@ -26,7 +26,7 @@
       <li><a href="{{ url_for('showCatalogItemDetail',
                               category_name=item.category.name,
                               catalog_item=item.title) }}">
-        {{ item.title }}</a> ({{ item.category.name }})</li>
+        {{ item.title }}</a></li>
     {% endfor %}
     </ul>
   </section>

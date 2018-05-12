@@ -19,12 +19,19 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 
+#JSON
+@app.route('/catalog.json')
+def showCatalogJSON():
+    catalog = session.query(CatalogItem).all()
+    return jsonify(catalog=[c.serialize for c in catalog])
+
+
 # List all categories
 @app.route('/')
 @app.route('/catalog')
 def showCategories():
     categories = session.query(Category).order_by(asc(Category.name))
-    items = session.query(CatalogItem).all()
+    items = session.query(CatalogItem).limit(10)
     return render_template('catalog.html', categories=categories, items=items,
                            login_session=login_session)
 
@@ -105,38 +112,58 @@ def editCategory(category_name):
     category = session.query(Category).filter_by(name=category_name).first()
     if category is not None:
         if request.method == 'POST':
-            category.name = request.form['name']
+            if request.form['name']:
+                category.name = request.form['name']
             session.add(category)
             session.commit()
             flash('Category edited successfully')
-            return redirect(url_for('showCategories'))
         else:
             return render_template('editcategory.html',
                                    category_name=category_name)
     else:
         flash('Category not found, please Add the new category.')
-        return redirect(url_for('createCategory'))
+    return redirect(url_for('showCategories'))
 
 
 # Delete a Category
 @app.route('/category/<string:category_name>/delete/', methods=['GET', 'POST'])
 def deleteCategory(category_name):
-    return 'Delete a Category %s' % (category_name,)
+    category = session.query(Category).filter_by(name=category_name).first()
+    if category is not None:
+        if request.method == 'POST':
+            session.delete(category)
+            session.commit()
+            flash('Category deleted successfully.')
+        else:
+            return render_template('deletecategory.html', category=category,
+                                   login_session=login_session)
+    else:
+        flash('Category not found.')
+    return redirect(url_for('showCategories'))
 
 
 # List Items from a Category
 @app.route('/catalog/<string:category_name>/items/')
 def showCatalogItems(category_name):
-    return 'Show all items of category %s' % (category_name,)
+    categories = session.query(Category).order_by(asc(Category.name))
+    actualcategory = session.query(Category).filter_by(
+        name=category_name).first()
+    items = session.query(CatalogItem).filter_by(category_id=actualcategory.id)
+    return render_template('catalogitem.html', categories=categories,
+                           items=items, actualcategory=actualcategory,
+                           login_session=login_session)
 
 
 # Item Detail
 @app.route('/catalog/<string:category_name>/<string:catalog_item>/')
 def showCatalogItemDetail(category_name, catalog_item):
     item = session.query(CatalogItem).filter_by(title=catalog_item).first()
-    return render_template('itemdetail.html', item=item,
-                           login_session=login_session)
-
+    if item is not None:
+        return render_template('itemdetail.html', item=item,
+                               login_session=login_session)
+    else:
+        flash('Item not Found.')
+        return redirect(url_for('showCategories'))
 
 # Create a new Catalog Item
 @app.route('/catalog/create/', methods=['GET', 'POST'])
@@ -150,14 +177,13 @@ def createCatalogItem():
             session.add(newitem)
             session.commit()
             flash('New Item created successfully.')
-            return redirect(url_for('showCategories'))
         else:
             categories = session.query(Category).all()
             return render_template('createitem.html',
                                    categories=categories)
     else:
         flash("Access denied %s." % url_for('createCatalogItem'))
-        return redirect(url_for('showCategories'))
+    return redirect(url_for('showCategories'))
 
 
 # Edit a Catalog Item
@@ -165,24 +191,27 @@ def createCatalogItem():
 def editCatalogItem(catalog_item):
     categories = session.query(Category).all()
     item = session.query(CatalogItem).filter_by(title=catalog_item).first()
-    if 'id' in login_session:
-        if request.method == 'POST':
-            item = session.query(CatalogItem).filter_by(
-                title=catalog_item).one()
-            item.title = request.form['title']
-            item.description = request.form['description']
-            item.category_id = request.form['category_id']
-            item.user_id = login_session['id']
-            session.add(item)
-            session.commit()
-            flash('Item edited successfully.')
-            return redirect(url_for('showCategories'))
+    if item is not None:
+        if 'id' in login_session:
+            if request.method == 'POST':
+                if request.form['title']:
+                    item.title = request.form['title']
+                if request.form['description']:
+                    item.description = request.form['description']
+                if request.form['category_id']:
+                    item.category_id = request.form['category_id']
+                item.user_id = login_session['id']
+                session.add(item)
+                session.commit()
+                flash('Item edited successfully.')
+            else:
+                return render_template('edititem.html',
+                                       categories=categories, item=item)
         else:
-            return render_template('edititem.html',
-                                   categories=categories, item=item)
+            flash('Access denied.')
     else:
-        flash('Access denied.')
-        return redirect('showCategories')
+        flash('Item not found.')
+    return redirect(url_for('showCategories'))
 
 
 # Delete a Catalog Item
@@ -190,15 +219,18 @@ def editCatalogItem(catalog_item):
            methods=['GET', 'POST'])
 def deleteCatalogItem(catalog_item):
     item = session.query(CatalogItem).filter_by(title=catalog_item).first()
-    if request.method == 'POST':
-        if 'id' in login_session:
-            session.delete(item)
-            session.commit()
-            flash('Item deleted successfully.')
-            return redirect(url_for('showCategories'))
+    if item is not None:
+        if request.method == 'POST':
+            if 'id' in login_session:
+                session.delete(item)
+                session.commit()
+                flash('Item deleted successfully.')
+        else:
+            return render_template('deleteitem.html', item=item,
+                                   login_session=login_session)
     else:
-        return render_template('deleteitem.html', item=item,
-                               login_session=login_session)
+        flash('Item not found.')
+    return redirect(url_for('showCategories'))
 
 
 if __name__ == '__main__':

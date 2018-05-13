@@ -9,22 +9,24 @@
         </div>
         <div class="col-sm-4 offset-md-1 py-4">
           <h4 class="text-white">Tecnologies</h4>
-          <ul class="text-muted">
-            <li>Python</li>
-            <li>HTML & CSS</li>
-            <li>JavaScript</li>
-          </ul>
+          <p class="text-muted">
+            Python, HTML5, CSS3, JavaScript, JQuery, Bootstrap & OAuth2.
+          </p>
         </div>
       </div>
     </div>
   </div>
   <div class="navbar navbar-dark bg-dark box-shadow">
     <div class="container d-flex">
-      <a href="#" class="navbar-brand d-flex align-items-center">
-        <h1>Catalog APP</h1>
+      <a href="{{ url_for('showCategories') }}" class="navbar-brand d-flex align-items-center">
+        <h1>Catalog Application</h1>
       </a>
       <div>
-      <a href="{{ url_for('showLogin') }}" class="navbar-brand">Login</a>
+      {% if 'user_id' in login_session %}
+        <span class="user">Welcome, {{ login_session['username'] }} | </span> <a href="{{ url_for('disconnect') }}" class="navbar-brand">Logout</a>
+      {% else %}
+        <a href="{{ url_for('showLogin') }}" class="navbar-brand">Login</a>
+      {% endif %}
       <button class="navbar-toggler" type="button" data-toggle="collapse"
         data-target="#navbarHeader" aria-controls="navbarHeader"
         aria-expanded="false" aria-label="Toggle navigation">

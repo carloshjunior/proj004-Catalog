@@ -1,10 +1,10 @@
 {% extends "main.html" %}
 {% block content %}
-<!-- {% include "header.html" %} -->
+{% include "header.html" %}
 <main>
   <h2>Delete Category</h2>
   <p>Are you sure you want to delete '{{ category.name }}'?</p>
-  {% if 'id' in login_session  %}
+  {% if 'user_id' in login_session  %}
   <form action="" method = "post">
     <button type="submit" class="btn btn-default" id="submit" type="submit">
     <span class="glyphicon glyphicon-cutlery" aria-hidden="true">

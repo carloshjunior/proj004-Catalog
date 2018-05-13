@@ -1,32 +1,110 @@
 {% extends "main.html" %}
 {% block content %}
-<!-- {% include "header.html" %} -->
-<main>
-  <h2>Login</h2>
-  <form action="" method = "post">
-    <div class="form-group">
-    <label for="name">Username or Email:</label>
-    <input type ="text" class="form-control" maxlength="100" name="name"></br>
-    <label for="name">Password:</label>
-    <input type ="password" class="form-control" maxlength="10" name="password"></br>
-    <button type="submit" class="btn btn-default" id="submit" type="submit">
-    <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Login</button>
+{% include "header.html" %}
+<main class="main-login">
+  <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab"
+         href="#nav-home" role="tab" aria-controls="nav-home"
+         aria-selected="true">Login</a>
+      <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab"
+         href="#nav-profile" role="tab" aria-controls="nav-profile"
+         aria-selected="false">Create new User</a>
     </div>
-  </form>
-  <h2>Create new User</h2>
-  <form action="{{url_for('createUser')}}" method = "post">
-    <div class="form-group">
-    <label for="name">Username:</label>
-    <input type ="text" class="form-control" maxlength="100" name="name"></br>
-    <label for="name">Email:</label>
-    <input type ="text" class="form-control" maxlength="100" name="email"></br>
-    <label for="name">Password:</label>
-    <input type ="password" class="form-control" maxlength="10" name="password"></br>
-    <label for="name">Repeat Password:</label>
-    <input type ="password" class="form-control" maxlength="10" name="confirm_password"></br>
-    <button type="submit" class="btn btn-default" id="submit" type="submit">
-    <span class="glyphicon glyphicon-cutlery" aria-hidden="true"></span>Create</button>
+  </nav>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="nav-home" role="tabpanel"
+         aria-labelledby="nav-home-tab">
+         <form action="" method = "post">
+           <div class="form-group">
+             Login using Social Network
+             <!-- GOOGLE PLUS SIGN IN-->
+             <div id="signinButton">
+               <span class="g-signin"
+                 data-scope="openid email"
+                 data-clientid="50490419887-3181e4eveq5umo62ha99tn2lvjnmhnhh.apps.googleusercontent.com"
+                 data-redirecturi="postmessage"
+                 data-accesstype="offline"
+                 data-cookiepolicy="single_host_origin"
+                 data-callback="signInCallback"
+                 data-approvalprompt="force">
+               </span>
+             </div>
+             <div id="result"></div>
+             <div class="form-group text-center">OR</div>
+             <script>
+             function signInCallback(authResult) {
+               if (authResult['code']) {
+                 // Hide the sign-in button now that the user is authorized
+                 $('#signinButton').attr('style', 'display: none');
+                 // Send the one-time-use code to the server, if the server responds, write a 'login successful' message to the web page and then redirect back to the main restaurants page
+                 $.ajax({
+                   type: 'POST',
+                   url: '/gconnect?state={{STATE}}',
+                   processData: false,
+                   data: authResult['code'],
+                   contentType: 'application/octet-stream; charset=utf-8',
+                   success: function(result) {
+                     // Handle or verify the server response if necessary.
+                     if (result) {
+                       $('#result').html('Login Successful!</br>Redirecting...')
+                      setTimeout(function() {
+                       window.location.href = "/catalog";
+                     }, 0);
+
+                   } else if (authResult['error']) {
+                 console.log('There was an error: ' + authResult['error']);
+               } else {
+                     $('#result').html('Failed to make a server-side call. Check your configuration and console.');
+                      }
+                   }
+               }); } }
+             </script>
+             <!--END GOOGLE PLUS SIGN IN -->
+           </div>
+           <div class="form-group">
+             <label for="name">Username or Email:</label>
+             <input type ="text" class="form-control" maxlength="100" name="name">
+           </div>
+           <div class="form-group">
+             <label for="name">Password:</label>
+             <input type ="password" class="form-control"
+                    maxlength="10" name="password">
+           </div>
+           <div class="form-group">
+             <button type="submit" class="btn btn-default" id="submit" type="submit">
+             <span class="glyphicon glyphicon-cutlery"
+                   aria-hidden="true"></span>Login</button>
+           </div>
+         </form>
     </div>
-  </form>
+    <div class="tab-pane fade" id="nav-profile" role="tabpanel"
+         aria-labelledby="nav-profile-tab">
+         <form action="{{url_for('createUser')}}" method = "post">
+           <div class="form-group">
+             <label for="name">Username:</label>
+             <input type ="text" class="form-control" maxlength="100" name="name">
+           </div>
+           <div class="form-group">
+             <label for="name">Email:</label>
+             <input type ="text" class="form-control" maxlength="100" name="email">
+           </div>
+           <div class="form-group">
+             <label for="name">Password:</label>
+             <input type ="password" class="form-control" maxlength="10" name="password">
+           </div>
+           <div class="form-group">
+             <label for="name">Repeat Password:</label>
+             <input type ="password" class="form-control"
+                    maxlength="10" name="confirm_password">
+           </div>
+           <div class="form-group">
+             <button type="submit" class="btn btn-default" id="submit-login" type="submit">
+               <span class="glyphicon glyphicon-cutlery"
+                     aria-hidden="true"></span>Create</button>
+           </div>
+         </form>
+    </div>
+  </div>
 </main>
 {% endblock %}

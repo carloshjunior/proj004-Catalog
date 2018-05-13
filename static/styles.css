@@ -1,38 +1,49 @@
+* {
+    box-sizing: border-box;
+}
+
 body{
     font-family: Exo, sans-serif;
     font-size: 1em;
+    line-height: 35px;
 }
 
-header, nav, footer, section, article, div {
-    box-sizing: border-box;
+header, footer {
+    clear: left;
+}
+
+li{
+  list-style-type: none;
 }
 
 main{
   margin-top: 15px;
 }
 
-aside{
+.main-login{
+  margin-left: 30%;
+  width: 40%;
+}
+
+nav{
   float: left;
   width: 20%;
 }
 
-aside ul{
+.main-login nav{
+  width: 100%;
+}
+
+article ul, nav ul{
   margin: 0;
   padding: 0;
 }
 
-aside li{
-    list-style-type: none;
-}
-
-section{
+article{
   float: right;
   width: 80%;
 }
-section ul{
-  margin: 0;
-  padding: 0;
-}
-section li{
-    list-style-type: none;
+
+.user{
+  color:#FFF;
 }

@@ -1,10 +1,10 @@
 {% extends "main.html" %}
 {% block content %}
-<!-- {% include "header.html" %} -->
+{% include "header.html" %}
 <main>
-  <aside>
+  <nav>
     <h2>Categories</h2>
-    {% if 'id' in login_session %}
+    {% if 'user_id' in login_session %}
       <a href="{{ url_for('createCategory') }}">Add new Category</a>
     {% endif %}
     <ul>
@@ -15,10 +15,10 @@
       {{ category.name }}</a></li>
       {% endfor %}
     </ul>
-  </aside>
-  <section>
+  </nav>
+  <article>
     <h2>{{ actualcategory.name }}</h2>
-    {% if 'id' in login_session %}
+    {% if 'user_id' in login_session %}
       <a href="{{ url_for('createCatalogItem') }}">Add new Item</a>
     {% endif %}
     <ul>
@@ -29,6 +29,6 @@
         {{ item.title }}</a></li>
     {% endfor %}
     </ul>
-  </section>
+  </article>
 </main>
 {% endblock %}

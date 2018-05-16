@@ -2,12 +2,8 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask import jsonify, make_response
 
-# Import library SQLAlchemy
-from sqlalchemy import create_engine, asc, desc
-from sqlalchemy.orm import sessionmaker
-
-# Import library Database
-from database_setup import Base, User, Category, CatalogItem
+# Import CRUD methods
+import crud
 
 # Import to create a Login controller
 from flask import session as login_session
@@ -29,17 +25,11 @@ APPLICATION_NAME = "Catalog Application"
 # Initialize Flask
 app = Flask(__name__)
 
-# Connect to Database and create database session
-engine = create_engine('sqlite:///catalog.db')
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
-
 
 # JSON
 @app.route('/catalog.json')
 def showCatalogJSON():
-    catalog = session.query(CatalogItem).all()
+    catalog = crud.getAllCategories()
     return jsonify(catalog=[c.serialize for c in catalog])
 
 
@@ -47,8 +37,8 @@ def showCatalogJSON():
 @app.route('/')
 @app.route('/catalog')
 def showCategories():
-    categories = session.query(Category).order_by(asc(Category.name))
-    items = session.query(CatalogItem).order_by(desc(CatalogItem.id)).limit(10)
+    categories = crud.getAllCategories()
+    items = crud.getLastestItems(10)
     return render_template('catalog.html', categories=categories, items=items,
                            login_session=login_session)
 
@@ -61,7 +51,7 @@ def showLogin():
     login_session['state'] = state
 
     if request.method == 'POST':
-        user = session.query(User).filter_by(name=request.form['name']).first()
+        user = crud.getUserbyName(request.form['name'])
         if user is not None:
             if user.password == request.form['password']:
                 connect_session(user)
@@ -76,30 +66,18 @@ def showLogin():
         return render_template('login.html', STATE=state)
 
 
-# Get User ID by Email
-def getUserID(email):
-    try:
-        user = session.query(User).filter_by(email=email).one()
-        return user.id
-    except ex:
-        return None
-
-
 # Create new User
 @app.route('/createUser', methods=['GET', 'POST'])
 def createUser():
     if request.method == 'POST':
-        user = session.query(User).filter_by(name=request.form['name']).first()
+        user = crud.getUserbyName(request.form['name'])
         if user is not None:
             flash('User already exist.')
             return render_template('login.html')
         else:
-            user = User(name=request.form['name'],
-                        email=request.form['email'],
-                        password=request.form['password'])
-            session.add(user)
-            session.commit()
-            user = session.query(User).filter_by(request.form['name']).first()
+            user = crud.createUser(request.form['name'],
+                                   request.form['email'],
+                                   request.form['password'])
             connect_session(user)
             return redirect(url_for('showCategories'))
     else:
@@ -107,11 +85,9 @@ def createUser():
 
 
 def createUserbyOAuth(login_session):
-    newUser = User(name=login_session['username'], email=login_session[
-                   'email'], picture=login_session['picture'])
-    session.add(newUser)
-    session.commit()
-    user = session.query(User).filter_by(email=login_session['email']).one()
+    user = crud.createUser(login_session['username'],
+                           login_session['email'],
+                           login_session['picture'])
     return user.id
 
 
@@ -189,10 +165,10 @@ def gconnect():
     login_session['email'] = data['email']
 
     # see if user exists, if it doesn't make a new one
-    user_id = getUserID(login_session['email'])
-    if not user_id:
-        user_id = createUserbyOAuth(login_session)
-    login_session['user_id'] = user_id
+    user = crud.getUserbyID(login_session['email'])
+    if user is None:
+        user = createUserbyOAuth(login_session)
+    login_session['user_id'] = user.id
 
     output = ''
     output += '<h1>Welcome, '
@@ -259,10 +235,8 @@ def createCategory():
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     if request.method == 'POST':
-        category = Category(name=request.form['name'],
-                            user_id=login_session['user_id'])
-        session.add(category)
-        session.commit()
+        category = crud.createCategory(request.form['name'],
+                                       login_session['user_id'])
         flash('Category included successfully')
         return redirect(url_for('showCategories'))
     else:
@@ -274,13 +248,10 @@ def createCategory():
 def editCategory(category_name):
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
-    category = session.query(Category).filter_by(name=category_name).first()
+    category = crud.getCategorybyName(category_name)
     if category is not None:
         if request.method == 'POST':
-            if request.form['name']:
-                category.name = request.form['name']
-            session.add(category)
-            session.commit()
+            crud.editCategory(category, request.form['name'])
             flash('Category edited successfully')
         else:
             return render_template('editcategory.html',
@@ -295,11 +266,10 @@ def editCategory(category_name):
 def deleteCategory(category_name):
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
-    category = session.query(Category).filter_by(name=category_name).first()
+    category = crud.getCategorybyName(category_name)
     if category is not None:
         if request.method == 'POST':
-            session.delete(category)
-            session.commit()
+            crud.deleteCategory(category)
             flash('Category deleted successfully.')
         else:
             return render_template('deletecategory.html', category=category,
@@ -312,10 +282,9 @@ def deleteCategory(category_name):
 # List Items from a Category
 @app.route('/catalog/<string:category_name>/items/')
 def showCatalogItems(category_name):
-    categories = session.query(Category).order_by(asc(Category.name))
-    actualcategory = session.query(Category).filter_by(
-        name=category_name).first()
-    items = session.query(CatalogItem).filter_by(category_id=actualcategory.id)
+    categories = crud.getAllCategories()
+    actualcategory = crud.getCategorybyName(category_name)
+    items = crud.getItemsbyCategoryID(actualcategory.id)
     return render_template('catalogitem.html', categories=categories,
                            items=items, actualcategory=actualcategory,
                            login_session=login_session)
@@ -324,7 +293,7 @@ def showCatalogItems(category_name):
 # Item Detail
 @app.route('/catalog/<string:category_name>/<string:catalog_item>/')
 def showCatalogItemDetail(category_name, catalog_item):
-    item = session.query(CatalogItem).filter_by(title=catalog_item).first()
+    item = crud.getItemsbyTitle(catalog_item)
     if item is not None:
         return render_template('itemdetail.html', item=item,
                                login_session=login_session)
@@ -339,17 +308,14 @@ def createCatalogItem():
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
     if request.method == 'POST':
-        newitem = CatalogItem(title=request.form['title'],
-                              description=request.form['description'],
-                              category_id=request.form['category_id'],
-                              user_id=login_session['user_id'])
-        session.add(newitem)
-        session.commit()
+        item = crud.createCatalogItem(request.form['title'],
+                                      request.form['description'],
+                                      request.form['category_id'],
+                                      login_session['user_id'])
         flash('New Item created successfully.')
     else:
-        categories = session.query(Category).all()
-        return render_template('createitem.html',
-                               categories=categories)
+        categories = crud.getAllCategories()
+        return render_template('createitem.html', categories=categories)
     return redirect(url_for('showCategories'))
 
 
@@ -358,19 +324,14 @@ def createCatalogItem():
 def editCatalogItem(catalog_item):
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
-    categories = session.query(Category).all()
-    item = session.query(CatalogItem).filter_by(title=catalog_item).first()
+    categories = crud.getAllCategories()
+    item = crud.getItemsbyTitle(catalog_item)
     if item is not None:
         if request.method == 'POST':
-            if request.form['title']:
-                item.title = request.form['title']
-            if request.form['description']:
-                item.description = request.form['description']
-            if request.form['category_id']:
-                item.category_id = request.form['category_id']
-            item.user_id = login_session['user_id']
-            session.add(item)
-            session.commit()
+            crud.editCatalogItem(item, request.form['title'],
+                                 request.form['description'],
+                                 request.form['category_id'],
+                                 login_session['user_id'])
             flash('Item edited successfully.')
         else:
             return render_template('edititem.html',
@@ -386,11 +347,10 @@ def editCatalogItem(catalog_item):
 def deleteCatalogItem(catalog_item):
     if 'username' not in login_session:
         return redirect(url_for('showLogin'))
-    item = session.query(CatalogItem).filter_by(title=catalog_item).first()
+    item = crud.getItemsbyTitle(catalog_item)
     if item is not None:
         if request.method == 'POST':
-            session.delete(item)
-            session.commit()
+            crud.deleteCatalogItem(item)
             flash('Item deleted successfully.')
         else:
             return render_template('deleteitem.html', item=item,

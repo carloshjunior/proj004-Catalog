@@ -29,9 +29,23 @@ class Category(Base):
     # JSON objects in a serializable format
     @property
     def serialize(self):
+        def serializeItem(item):
+            return {
+                'id': item.id,
+                'title': item.title,
+                'description': item.description,
+            }
+            
+        def listItems(items):
+            list = []
+            for item in items:
+                list.append(serializeItem(item))
+            return list
+
         return {
             'id': self.id,
             'name': self.name,
+            'items': listItems(self.items),
         }
 
 
@@ -53,7 +67,6 @@ class CatalogItem(Base):
             'id': self.id,
             'title': self.title,
             'description': self.description,
-            'category': self.category.name,
         }
 
 

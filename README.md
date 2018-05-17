@@ -12,6 +12,7 @@ Este site permite .
 
 ## Como executar
 * Para executar o relatório você precisa de uma máquina virtual configurada com VirtualBox e Vagrant;
+* Pyhton versão 2.7.12
 * Copie o sistema para a máquina virtual;
 * Inicie o usando o comando na máquina virtual '$ python application.py'
 * Acesse no navegador o endereço http://localhost:8000

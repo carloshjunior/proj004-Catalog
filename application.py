@@ -88,7 +88,7 @@ def createUserbyOAuth(login_session):
     user = crud.createUser(login_session['username'],
                            login_session['email'],
                            login_session['picture'])
-    return user.id
+    return user
 
 
 @app.route('/gconnect', methods=['POST'])
@@ -165,7 +165,7 @@ def gconnect():
     login_session['email'] = data['email']
 
     # see if user exists, if it doesn't make a new one
-    user = crud.getUserbyID(login_session['email'])
+    user = crud.getUserbyEmail(login_session['email'])
     if user is None:
         user = createUserbyOAuth(login_session)
     login_session['user_id'] = user.id

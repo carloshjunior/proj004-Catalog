@@ -246,16 +246,19 @@ def createCategory():
 # Edit a Category
 @app.route('/category/<string:category_name>/edit/', methods=['GET', 'POST'])
 def editCategory(category_name):
-    if 'username' not in login_session:
+    if 'user_id' not in login_session:
         return redirect(url_for('showLogin'))
     category = crud.getCategorybyName(category_name)
     if category is not None:
-        if request.method == 'POST':
-            crud.editCategory(category, request.form['name'])
-            flash('Category edited successfully')
+        if login_session['user_id'] == category.user_id:
+            if request.method == 'POST':
+                crud.editCategory(category, request.form['name'])
+                flash('Category edited successfully')
+            else:
+                return render_template('editcategory.html',
+                                       category_name=category_name)
         else:
-            return render_template('editcategory.html',
-                                   category_name=category_name)
+            flash('Edit access Denied')
     else:
         flash('Category not found, please Add the new category.')
     return redirect(url_for('showCategories'))
@@ -264,16 +267,20 @@ def editCategory(category_name):
 # Delete a Category
 @app.route('/category/<string:category_name>/delete/', methods=['GET', 'POST'])
 def deleteCategory(category_name):
-    if 'username' not in login_session:
+    if 'user_id' not in login_session:
         return redirect(url_for('showLogin'))
     category = crud.getCategorybyName(category_name)
     if category is not None:
-        if request.method == 'POST':
-            crud.deleteCategory(category)
-            flash('Category deleted successfully.')
+        if login_session['user_id'] == category.user_id:
+            if request.method == 'POST':
+                crud.deleteCategory(category)
+                flash('Category deleted successfully.')
+            else:
+                return render_template('deletecategory.html',
+                                       category=category,
+                                       login_session=login_session)
         else:
-            return render_template('deletecategory.html', category=category,
-                                   login_session=login_session)
+            flash('Delete access Denied')
     else:
         flash('Category not found.')
     return redirect(url_for('showCategories'))
@@ -327,15 +334,18 @@ def editCatalogItem(catalog_item):
     categories = crud.getAllCategories()
     item = crud.getItemsbyTitle(catalog_item)
     if item is not None:
-        if request.method == 'POST':
-            crud.editCatalogItem(item, request.form['title'],
-                                 request.form['description'],
-                                 request.form['category_id'],
-                                 login_session['user_id'])
-            flash('Item edited successfully.')
+        if login_session['user_id'] == item.user_id:
+            if request.method == 'POST':
+                crud.editCatalogItem(item, request.form['title'],
+                                     request.form['description'],
+                                     request.form['category_id'],
+                                     login_session['user_id'])
+                flash('Item edited successfully.')
+            else:
+                return render_template('edititem.html',
+                                       categories=categories, item=item)
         else:
-            return render_template('edititem.html',
-                                   categories=categories, item=item)
+            flash('Edit access Denied')
     else:
         flash('Item not found.')
     return redirect(url_for('showCategories'))
@@ -349,12 +359,15 @@ def deleteCatalogItem(catalog_item):
         return redirect(url_for('showLogin'))
     item = crud.getItemsbyTitle(catalog_item)
     if item is not None:
-        if request.method == 'POST':
-            crud.deleteCatalogItem(item)
-            flash('Item deleted successfully.')
+        if login_session['user_id'] == item.user_id:
+            if request.method == 'POST':
+                crud.deleteCatalogItem(item)
+                flash('Item deleted successfully.')
+            else:
+                return render_template('deleteitem.html', item=item,
+                                       login_session=login_session)
         else:
-            return render_template('deleteitem.html', item=item,
-                                   login_session=login_session)
+            flash('Delete access Denied')
     else:
         flash('Item not found.')
     return redirect(url_for('showCategories'))

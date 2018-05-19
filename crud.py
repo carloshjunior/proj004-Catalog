@@ -24,14 +24,14 @@ def getUserbyName(name):
 
 # Get User by Email
 def getUserbyEmail(email):
-        user = session.query(User).filter_by(email=email).first()
-        return user
+    user = session.query(User).filter_by(email=email).first()
+    return user
 
 
 # Get User by ID
 def getUserbyID(id):
-        user = session.query(User).filter_by(id=id).first()
-        return user
+    user = session.query(User).filter_by(id=id).first()
+    return user
 
 
 # Create new User
